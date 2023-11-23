@@ -34,20 +34,24 @@ import matplotlib.pyplot as plt
 """
 
 
-def plot_row_pointcloud(file):
+def plot_row_pointcloud(pointcloud):
+    """
+    pointcloud: [numpy array]: pointcloud to be displayed
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+    ax.view_init(azim=0, elev=-180)
+    ax.scatter(pointcloud[:, 2], pointcloud[:, 0], pointcloud[:, 1])
+    plt.show()
+
+
+def read_pc_from_file(file):
     """
     file: [string]: npz file to be processed
     return: pointcloud in numpy array
     """
     row_np_array = np.load(file)
     row_pointcloud = row_np_array["arr_0"]
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-    ax.view_init(azim=0, elev=-180)
-    ax.scatter(row_pointcloud[:, 2], row_pointcloud[:, 0], row_pointcloud[:, 1])
-    plt.show()
-
     return row_pointcloud
 
 
@@ -69,6 +73,37 @@ def pcloud_info(pc):
     print(f"Minimum z: {min(z)} \nMaximum z: {max(z)}")
 
 
+def reduce_pc(pointcloud):
+    """
+    This is a helper function to reduce the pointcloud to more relevant info.
+
+    pointcloud: a pointcloud in numpy array form
+    return: a reduced pointcloud in numpy array form
+
+    """
+    # The lower bound cuts out the floor which isn't relevant to the problem, and
+    # the upper bound is set somewhat arbitrarily to cut down on the number of points
+    reduced_pc = pointcloud[pointcloud[:, 1] < -0.1]
+    reduced_pc = reduced_pc[reduced_pc[:, 1] >= -0.2]
+    return reduced_pc
+
+
+def get_rate(pointcloud):
+    """
+    Function to determine the angular rate required from the
+
+    pointcloud: a pointcloud in numpy array form
+    return: an angular rate for the robot to turn
+    """
+    xy_points = pointcloud[:, (2, 0)]
+    x = pointcloud[:, 2]
+    y = pointcloud[:, 0]
+
+    norms = np.linalg.norm(xy_points, axis=0)
+    angles = np.arctan2(y, x)
+
+
 if __name__ == "__main__":
-    pointcloud = plot_row_pointcloud("1.npz")
-    pcloud_info(pointcloud)
+    pointcloud = read_pc_from_file("1.npz")
+    pc = reduce_pc(pointcloud)
+    pcloud_info(pc)
