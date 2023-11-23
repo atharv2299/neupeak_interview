@@ -84,7 +84,7 @@ def reduce_pc(pointcloud):
     # The lower bound cuts out the floor which isn't relevant to the problem, and
     # the upper bound is set somewhat arbitrarily to cut down on the number of points
     reduced_pc = pointcloud[pointcloud[:, 1] < -0.1]
-    reduced_pc = reduced_pc[reduced_pc[:, 1] >= -0.2]
+    reduced_pc = reduced_pc[reduced_pc[:, 1] >= -0.6]
     return reduced_pc
 
 
@@ -99,11 +99,22 @@ def get_rate(pointcloud):
     x = pointcloud[:, 2]
     y = pointcloud[:, 0]
 
-    norms = np.linalg.norm(xy_points, axis=0)
-    angles = np.arctan2(y, x)
+    norms = np.linalg.norm(xy_points, axis=1).reshape(1, -1)
+    angles = np.arctan2(y, x).reshape(1, -1)
+
+    paired = np.concatenate((norms, angles), axis=0)
+    # Solution 1: Base on number of points falling in each half
+    ANGULAR_VELOCITY = 20  # max angular velocity in deg/s
+    left = norms[angles < 0]
+    right = norms[angles > 0]
+
+    angular_rate = ANGULAR_VELOCITY * (left.size - right.size) / norms.size
+
+    return angular_rate
 
 
 if __name__ == "__main__":
     pointcloud = read_pc_from_file("1.npz")
     pc = reduce_pc(pointcloud)
-    pcloud_info(pc)
+    # pcloud_info(pc)
+    rate = get_rate(pc)
