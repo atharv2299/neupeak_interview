@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-'''
+"""
     Test Description:
 
     [TASK 1]
@@ -31,7 +31,7 @@ import matplotlib.pyplot as plt
 
 
     Evaluation Criteria: Method runtime. Lower is better.
-'''
+"""
 
 
 def plot_row_pointcloud(file):
@@ -40,10 +40,10 @@ def plot_row_pointcloud(file):
     return: pointcloud in numpy array
     """
     row_np_array = np.load(file)
-    row_pointcloud = row_np_array['arr_0']
+    row_pointcloud = row_np_array["arr_0"]
 
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(111, projection="3d")
     ax.view_init(azim=0, elev=-180)
     ax.scatter(row_pointcloud[:, 2], row_pointcloud[:, 0], row_pointcloud[:, 1])
     plt.show()
@@ -51,5 +51,24 @@ def plot_row_pointcloud(file):
     return row_pointcloud
 
 
+def pcloud_info(pc):
+    """
+    This is a helper function I've written just to help me understand the properties
+    of any pointcloud I pass to it
+
+    pc: a pointcloud in numpy array form
+    """
+
+    # Based on the plotting provided x  is col 2, y is col 0,  and z is col 1
+    x = pc[:, 2]
+    y = pc[:, 0]
+    z = pc[:, 1]
+
+    print(f"Minimum x: {min(x)} \nMaximum x: {max(x)}")
+    print(f"Minimum y: {min(y)} \nMaximum y: {max(y)}")
+    print(f"Minimum z: {min(z)} \nMaximum z: {max(z)}")
+
+
 if __name__ == "__main__":
     pointcloud = plot_row_pointcloud("1.npz")
+    pcloud_info(pointcloud)
