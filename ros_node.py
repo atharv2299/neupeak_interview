@@ -16,6 +16,12 @@ class AngularRate(Node):
         self.pc_sub
 
     def pc_callback(self, pointcloud):
+        """
+        Function uses get_rate to determine the angular rate, then
+        publishes the rate to the /cmd_vel topic.
+
+        """
+
         z = self.get_rate(pointcloud)
         # I'm assuming here that publishing the angular velocity to cmd_vel
         # does not affect the linear velocity. Though in a real scenario this

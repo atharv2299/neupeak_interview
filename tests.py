@@ -11,6 +11,11 @@ class TestCases(unittest.TestCase):
         self.reduced2 = reduce_pc(self.pc2)
 
     def testReadFile(self):
+        """
+        Test case to determine that pointclouds are read in correctly and have
+        expected dimensions.
+        """
+
         self.assertGreater(self.pc.shape[0], 0, "PointCloud 1 is empty")
         self.assertGreater(self.pc2.shape[0], 0, "PointCloud 2 is empty")
         self.assertEqual(
@@ -25,6 +30,11 @@ class TestCases(unittest.TestCase):
         )
 
     def testReducePC(self):
+        """
+        Test case to confirm that pointclouds are reduced in size, and not the same size
+        or larger than the raw pointclouds.
+        """
+
         self.assertLess(
             self.reduced.shape[0],
             self.pc.shape[0],
@@ -38,6 +48,11 @@ class TestCases(unittest.TestCase):
         )
 
     def testGetRate(self):
+        """
+        Test case to determine that the angular rate is correctly determined based on
+        the provided pointclouds.
+        """
+
         rate = get_rate(self.reduced)
         rate2 = get_rate(self.reduced2)
 
