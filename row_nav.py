@@ -102,24 +102,48 @@ def get_rate(pointcloud):
     norms = np.linalg.norm(xy_points, axis=1).reshape(1, -1)
     angles = np.arctan2(y, x).reshape(1, -1)
 
-    paired = np.concatenate((norms, angles), axis=0)
+    # paired = np.concatenate((norms, angles), axis=0)
     ANGULAR_VELOCITY = 20  # max angular velocity in deg/s
 
     # Solution 1: Base on number of points falling in each half
+    # ==================================================
+    # left = norms[angles < 0]
+    # right = norms[angles > 0]
+
+    # angular_rate = ANGULAR_VELOCITY * (left.size - right.size) / norms.size
+    # print(angular_rate)
+    # ==================================================
+
+    # Solution 2: Use the median in each half to
+    # ==================================================
+    # left = np.median(norms[angles < 0])
+    # right = np.median(norms[angles > 0])
+    # gain = 1
+    # normalized = gain * (right - left) / (right + left)
+    # # Make sure the difference between medians is significant enough to warrant correction
+    # angular_rate = ANGULAR_VELOCITY * normalized if normalized > 0.05 else 0
+    # ==================================================
+
+    # Solution 3: Combine both
     left = norms[angles < 0]
     right = norms[angles > 0]
+    left_median = np.median(left)
+    right_median = np.median(right)
 
-    angular_rate = ANGULAR_VELOCITY * (left.size - right.size) / norms.size
-    print(angular_rate)
-    # Solution 2: Use the median in each half to
-    left = np.median(norms[angles < 0])
-    right = np.median(norms[angles > 0])
-    gain = 1
-    normalized = gain * (right - left) / (right + left)
-    # Make sure the difference between medians is significant enough to warrant correction
-    angular_rate = ANGULAR_VELOCITY * normalized if normalized > 0.05 else 0
+    point_based = left.size - right.size
+    median_based = right_median - left_median
+    norm_point = point_based / norms.size
+    norm_med = median_based / max(right_median, left_median)
 
-    print(angular_rate)
+    angular_rate = ANGULAR_VELOCITY * (norm_point + norm_med) / 2
+
+    # If the angular rate is very low the robot is likely close to aligned so we don't need to correct necessarily
+    if np.abs(angular_rate) < 3:
+        angular_rate = 0
+    elif np.abs(angular_rate) > ANGULAR_VELOCITY:
+        sign = np.sign(angular_rate)
+        angular_rate = sign * ANGULAR_VELOCITY
+
     return angular_rate
 
 
