@@ -100,6 +100,11 @@ def get_rate(pointcloud):
     y = pointcloud[:, 0]
 
     norms = np.linalg.norm(xy_points, axis=1).reshape(1, -1)
+    # Actually don't need the angles array, could just use the y dim
+    # to determine the halves, just negate so the rest of the code
+    # doesn't have to change.
+    # i.e.
+    # angles = -y
     angles = np.arctan2(y, x).reshape(1, -1)
 
     # paired = np.concatenate((norms, angles), axis=0)
